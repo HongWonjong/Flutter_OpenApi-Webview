@@ -4,6 +4,8 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/geolocation_model.dart';
 
+/// GeoLocation API에 직접 요청을 보내는 메서드와 이를 위한 시그니쳐 생성 메서드가 있는 리포지토리.
+/// dotenv를 통해 액세스키와 시크릿 키를 가져와서 할당한 후 사용한다.
 class GeoLocationRepository {
   final String baseUrl = 'https://geolocation.apigw.ntruss.com/geolocation/v2/geoLocation';
   final String accessKey = dotenv.env['NCP_ACCESS_KEY'] ?? '';
