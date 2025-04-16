@@ -12,11 +12,11 @@ class GeoLocationState {
 class GeoLocationNotifier extends StateNotifier<GeoLocationState> {
   GeoLocationNotifier() : super(GeoLocationState(const AsyncValue.data(null)));
 
-  Future<void> fetchGeoLocation(String ip) async {
+  Future<void> fetchGeoLocation() async {
     state = GeoLocationState(const AsyncValue.loading());
     try {
       final repository = GeoLocationRepository();
-      final geoLocation = await repository.fetchGeoLocation(ip);
+      final geoLocation = await repository.fetchGeoLocation();
       state = GeoLocationState(AsyncValue.data(geoLocation));
     } catch (e, stackTrace) {
       state = GeoLocationState(AsyncValue.error(e, stackTrace));

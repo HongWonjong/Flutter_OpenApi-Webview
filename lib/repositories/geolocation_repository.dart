@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import '../models/geolocation_model.dart';
 
 /// GeoLocation API에 직접 요청을 보내는 메서드와 이를 위한 시그니쳐 생성 메서드가 있는 리포지토리.
@@ -17,12 +18,30 @@ class GeoLocationRepository {
     }
   }
 
-  Future<GeoLocationData> fetchGeoLocation(String ip) async {
+  /// 현재 IP 주소를 가져오는 메서드
+  Future<String> _getCurrentIp() async {
+    try {
+      final response = await http.get(Uri.parse('https://api.ipify.org'));
+      if (response.statusCode == 200) {
+        return response.body; // 예시: 124.52.62.81
+      } else {
+        throw Exception('Failed to fetch IP address: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching IP: $e');
+    }
+  }
+
+  /// 현재 IP 주소를 기반으로 GeoLocation 데이터를 가져오는 메서드
+  Future<GeoLocationData> fetchGeoLocation() async {
+    // 항상 현재 IP를 가져옴
+    final targetIp = await _getCurrentIp();
+
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final signature = _generateSignature('GET', baseUrl, timestamp, ip);
+    final signature = _generateSignature('GET', baseUrl, timestamp, targetIp);
 
     final response = await http.get(
-      Uri.parse('$baseUrl?ip=$ip&ext=t&enc=utf8&responseFormatType=json'),
+      Uri.parse('$baseUrl?ip=$targetIp&ext=t&enc=utf8&responseFormatType=json'),
       headers: {
         'x-ncp-apigw-timestamp': timestamp,
         'x-ncp-iam-access-key': accessKey,

@@ -3,6 +3,7 @@
 
 develop 브랜치에서 코드를 짠 후 정상 작동 확인되면 main으로 pull request 후 merge
 <예상 디렉터리 구조>
+main.dart // 엔트리 포인트
 ├──pages
 └──adress_list_page.dart
 └──webview_page.dart
