@@ -39,10 +39,6 @@ class GeoLocationRepository {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     final signature = _generateSignature('GET', baseUrl, timestamp, targetIp);
 
-    print(timestamp);
-    print(accessKey);
-    print(signature);
-    print('$baseUrl?enc=utf8&ext=t&ip=$targetIp&responseFormatType=json');
     final response = await http.get(
       Uri.parse('$baseUrl?enc=utf8&ext=t&ip=$targetIp&responseFormatType=json'),
       headers: {
