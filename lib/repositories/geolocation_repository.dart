@@ -34,14 +34,17 @@ class GeoLocationRepository {
 
   /// 현재 IP 주소를 기반으로 GeoLocation 데이터를 가져오는 메서드
   Future<GeoLocationData> fetchGeoLocation() async {
-    // 항상 현재 IP를 가져옴
     final targetIp = await _getCurrentIp();
 
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     final signature = _generateSignature('GET', baseUrl, timestamp, targetIp);
 
+    print(timestamp);
+    print(accessKey);
+    print(signature);
+    print('$baseUrl?enc=utf8&ext=t&ip=$targetIp&responseFormatType=json');
     final response = await http.get(
-      Uri.parse('$baseUrl?ip=$targetIp&ext=t&enc=utf8&responseFormatType=json'),
+      Uri.parse('$baseUrl?enc=utf8&ext=t&ip=$targetIp&responseFormatType=json'),
       headers: {
         'x-ncp-apigw-timestamp': timestamp,
         'x-ncp-iam-access-key': accessKey,
@@ -65,7 +68,7 @@ class GeoLocationRepository {
     // 시그니처용 문자열 구성
     final stringToSign = '$method $urlPath\n$timestamp\n$accessKey';
 
-    // HMAC-SHA256으로 시그니처 생성
+    // HMAC-SHA256으로 시그니처 생성하는 코드
     final key = utf8.encode(secretKey);
     final bytes = utf8.encode(stringToSign);
     final hmacSha256 = Hmac(sha256, key);
