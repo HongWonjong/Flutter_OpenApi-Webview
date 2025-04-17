@@ -45,6 +45,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>위치 정보를 사용하여 현재 위치와 주변 주소를 가져옵니다.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>위치 정보를 사용하여 현재 위치와 주변 주소를 가져옵니다.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>위치 정보를 사용하여 현재 위치와 주변 주소를 가져옵니다.</string>
 	<!-- 인터넷 권한 설정 -->
     	<key>NSAppTransportSecurity</key>
     	<dict>

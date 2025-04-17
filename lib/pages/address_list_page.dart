@@ -1,39 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../components/current_location_cart.dart';
+import '../components/geolocator_card.dart';
+import '../components/address_list_view.dart';
+import '../models/device_location_model.dart';
+import '../models/geolocation_model.dart';
+import '../models/vworld_search_result.dart';
+import '../providers/device_location_provider.dart';
 import '../providers/geolocation_provider.dart';
 
-class AddressListPage extends ConsumerWidget {
+class AddressListPage extends ConsumerStatefulWidget {
   const AddressListPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // 주소 데이터 리스트 (하드코딩)
-    final List<Map<String, String>> addresses = [
-      {
-        'title': '삼성1동 주민센터',
-        'address': '서울특별시 강남구 봉은사로 616 삼성1동 주민센터',
-      },
-      {
-        'title': '삼성2동 주민센터',
-        'address': '서울특별시 강남구 봉은사로 419 삼성2동주민센터',
-      },
-      {
-        'title': '코엑스',
-        'address': '서울특별시 강남구 영동대로 513',
-      },
-      {
-        'title': '코엑스아쿠아리움',
-        'address': '서울특별시 강남구 영동대로 513',
-      },
-      {
-        'title': '현대백화점 무역센터점',
-        'address': '서울특별시 강남구 테헤란로 517',
-      },
-    ];
+  ConsumerState<AddressListPage> createState() => _AddressListPageState();
+}
 
-    // GeoLocation 상태 구독
+class _AddressListPageState extends ConsumerState<AddressListPage> {
+  final TextEditingController _titleController = TextEditingController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // GeoLocation 상태 구독 (GeoLocationAPI)
     final geoLocationState = ref.watch(geoLocationProvider).data;
+    // DeviceLocation 상태 구독 (Geolocator 및 VWORLD)
+    final deviceLocationState = ref.watch(deviceLocationProvider);
 
     return Scaffold(
       body: Column(
@@ -47,8 +44,9 @@ class AddressListPage extends ConsumerWidget {
               children: [
                 Expanded(
                   child: TextField(
+                    controller: _titleController,
                     decoration: const InputDecoration(
-                      labelText: '주소 입력',
+                      labelText: '위치 제목 입력',
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -57,7 +55,10 @@ class AddressListPage extends ConsumerWidget {
                 // 현재 위치 검색 버튼 (원형 아이콘)
                 FloatingActionButton(
                   onPressed: () {
+                    // GeoLocationAPI 데이터 가져오기
                     ref.read(geoLocationProvider.notifier).fetchGeoLocation();
+                    // Geolocator 및 VWORLD 데이터 가져오기
+                    ref.read(deviceLocationProvider.notifier).fetchLocationAndAddress();
                   },
                   backgroundColor: Colors.purple,
                   child: const Icon(Icons.my_location, color: Colors.white),
@@ -65,67 +66,76 @@ class AddressListPage extends ConsumerWidget {
               ],
             ),
           ),
-          // API 호출 결과 표시 (현재 위치)
-          geoLocationState.when(
-            data: (geoLocation) {
-              if (geoLocation == null) {
-                return const SizedBox.shrink();
-              }
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CurrentLocationCard(title: "GeoLocationAPI",geoLocation: geoLocation),
-                  CurrentLocationCard(title: "Geolocator",geoLocation: geoLocation)
-                ],
-              );
-            },
-            loading: () => const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(),
-            ),
-            error: (error, _) => Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text('에러: $error', style: const TextStyle(color: Colors.red)),
+          // API 호출 결과 표시 (위치 및 주소)
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // GeoLocationAPI 데이터 표시 (첫 번째 카드)
+                geoLocationState.when(
+                  data: (geoLocation) {
+                    if (geoLocation == null) {
+                      return const SizedBox.shrink();
+                    }
+                    return CurrentLocationCard(
+                      geoLocation: geoLocation,
+                      title: _titleController.text.isEmpty
+                          ? 'GeoLocationAPI'
+                          : '${_titleController.text} (GeoLocationAPI)',
+                    );
+                  },
+                  loading: () => const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                  error: (error, _) => Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('GeoLocationAPI 에러: $error', style: const TextStyle(color: Colors.red)),
+                  ),
+                ),
+                // Geolocator 데이터 표시 (두 번째 카드)
+                deviceLocationState.deviceLocation.when(
+                  data: (deviceLocation) {
+                    if (deviceLocation == null) {
+                      return const SizedBox.shrink();
+                    }
+                    return GeolocatorCard(
+                      deviceLocation: deviceLocation,
+                      title: _titleController.text.isEmpty
+                          ? 'Geolocator'
+                          : _titleController.text,
+                    );
+                  },
+                  loading: () => const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                  error: (error, _) => Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Geolocator 에러: $error', style: const TextStyle(color: Colors.red)),
+                  ),
+                ),
+              ],
             ),
           ),
-          // 기존 주소 리스트
+          // VWORLD API에서 가져온 주변 주소 목록 표시
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: addresses.length,
-              itemBuilder: (context, index) {
-                final address = addresses[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16.0),
-                  elevation: 2.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          address['title']!,
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          address['address']!,
-                          style: const TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+            child: deviceLocationState.nearbyAddresses.when(
+              data: (addresses) {
+                if (addresses.isEmpty) {
+                  return const Center(child: Text('주변에 행정복지센터가 없습니다.'));
+                }
+                return AddressListView(addresses: addresses);
               },
+              loading: () => const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: CircularProgressIndicator(),
+              ),
+              error: (error, _) => Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text('주소 목록 에러: $error', style: const TextStyle(color: Colors.red)),
+              ),
             ),
           ),
         ],

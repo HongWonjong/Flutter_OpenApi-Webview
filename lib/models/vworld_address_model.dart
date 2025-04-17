@@ -14,13 +14,14 @@ class VworldAddressData {
   });
 
   factory VworldAddressData.fromJson(Map<String, dynamic> json) {
-    final result = json['response']['result']['structure'] ?? {};
+    final result = json['response']['result'] is List ? json['response']['result'][0] : {};
+    final structure = result['structure'] ?? {};
     return VworldAddressData(
-      roadAddress: result['text'] ?? '',
-      jibunAddress: result['jibun'] ?? '',
-      administrativeArea: result['sido'] ?? '',
-      administrativeSubArea: result['sigungu'] ?? '',
-      postalCode: result['zipcode'] ?? '',
+      roadAddress: result['text']?.toString() ?? '',
+      jibunAddress: structure['level4L']?.toString() ?? '', // 동/면/읍
+      administrativeArea: structure['level1']?.toString() ?? '', // 시/도
+      administrativeSubArea: structure['level2']?.toString() ?? '', // 구/군
+      postalCode: result['zipcode']?.toString() ?? '',
     );
   }
 
