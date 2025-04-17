@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_openapi_webview/pages/adress_list_page.dart';
+import 'package:flutter_openapi_webview/pages/address_list_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 

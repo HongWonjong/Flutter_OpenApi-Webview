@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../components/current_location_cart.dart';
 import '../providers/geolocation_provider.dart';
 
 class AddressListPage extends ConsumerWidget {
@@ -52,7 +53,7 @@ class AddressListPage extends ConsumerWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 // 현재 위치 검색 버튼 (원형 아이콘)
                 FloatingActionButton(
                   onPressed: () {
@@ -70,39 +71,12 @@ class AddressListPage extends ConsumerWidget {
               if (geoLocation == null) {
                 return const SizedBox.shrink();
               }
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                elevation: 2.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '현재 위치',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        '국가: ${geoLocation.country}\n'
-                            '지역 코드: ${geoLocation.code}\n'
-                            '시/도: ${geoLocation.r1}\n'
-                            '구/군: ${geoLocation.r2}\n'
-                            '동/면/읍: ${geoLocation.r3}',
-                        style: const TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CurrentLocationCard(title: "GeoLocationAPI",geoLocation: geoLocation),
+                  CurrentLocationCard(title: "Geolocator",geoLocation: geoLocation)
+                ],
               );
             },
             loading: () => const Padding(
