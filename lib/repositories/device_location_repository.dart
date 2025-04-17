@@ -30,7 +30,7 @@ class DeviceLocationRepository {
     return {'x': x, 'y': y};
   }
 
-  // BBox 계산 (중심 좌표와 반경을 기반으로)
+  // BBox 계산
   Map<String, double> _calculateBBox(double latitude, double longitude, int radius) {
     final mercator = _wgs84ToMercator(latitude, longitude);
     final double x = mercator['x']!;
@@ -176,7 +176,7 @@ class DeviceLocationRepository {
   Future<List<VworldSearchResult>> searchNearbyAddresses(
       double latitude,
       double longitude, {
-        String query = '행정복지센터',
+        String query = '',
         int radius = 1000,
         int size = 10,
         int page = 1,

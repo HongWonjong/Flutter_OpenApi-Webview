@@ -1,3 +1,4 @@
+import 'package:flutter_openapi_webview/providers/search_query_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/device_location_model.dart';
 import '../models/vworld_address_model.dart';
@@ -28,27 +29,26 @@ class DeviceLocationState {
   }
 }
 
+
 class DeviceLocationNotifier extends StateNotifier<DeviceLocationState> {
   final DeviceLocationRepository repository;
+  final Ref ref;
 
-  DeviceLocationNotifier(this.repository) : super(DeviceLocationState());
+  DeviceLocationNotifier(this.repository, this.ref) : super(DeviceLocationState());
 
   Future<void> fetchLocationAndAddress() async {
     try {
       print('Starting fetchLocationAndAddress...');
-      // 위치 데이터 로딩 상태
       state = state.copyWith(
         deviceLocation: const AsyncValue.loading(),
         vworldAddress: const AsyncValue.loading(),
         nearbyAddresses: const AsyncValue.loading(),
       );
 
-      // 디바이스 위치 가져오기
       print('Fetching device location...');
       final deviceLocation = await repository.getDeviceLocation();
       print('Device location fetched: latitude=${deviceLocation.latitude}, longitude=${deviceLocation.longitude}');
 
-      // VWORLD API로 주소 가져오기
       print('Fetching address from VWORLD...');
       final vworldAddress = await repository.getAddressFromVworld(
         deviceLocation.latitude,
@@ -56,18 +56,17 @@ class DeviceLocationNotifier extends StateNotifier<DeviceLocationState> {
       );
       print('VWORLD address fetched: roadAddress=${vworldAddress.roadAddress}, administrativeArea=${vworldAddress.administrativeArea}');
 
-      // VWORLD API로 주변 주소 목록 검색
-      print('Fetching nearby addresses from VWORLD...');
+      final query = ref.read(searchQueryProvider);
+      print('Fetching nearby addresses from VWORLD with query: $query...');
       final nearbyAddresses = await repository.searchNearbyAddresses(
         deviceLocation.latitude,
         deviceLocation.longitude,
-        query: '행정복지센터',
+        query: query.isEmpty ? '행정복지센터' : query,
         radius: 1000,
       );
       print('Nearby addresses fetched: ${nearbyAddresses.length} items');
       print('Nearby addresses: ${nearbyAddresses.map((addr) => addr.title).toList()}');
 
-      // 성공 상태 업데이트
       state = state.copyWith(
         deviceLocation: AsyncValue.data(deviceLocation),
         vworldAddress: AsyncValue.data(vworldAddress),
@@ -77,7 +76,6 @@ class DeviceLocationNotifier extends StateNotifier<DeviceLocationState> {
     } catch (e, stack) {
       print('Error in fetchLocationAndAddress: $e');
       print('Stack trace: $stack');
-      // 에러 상태 업데이트
       state = state.copyWith(
         deviceLocation: AsyncValue.error(e, stack),
         vworldAddress: AsyncValue.error(e, stack),
@@ -87,13 +85,11 @@ class DeviceLocationNotifier extends StateNotifier<DeviceLocationState> {
   }
 }
 
-// DeviceLocationRepository 프로바이더
-final deviceLocationRepositoryProvider = Provider<DeviceLocationRepository>((ref) {
-  return DeviceLocationRepository();
-});
-
-// DeviceLocationNotifier 프로바이더
 final deviceLocationProvider = StateNotifierProvider<DeviceLocationNotifier, DeviceLocationState>((ref) {
   final repository = ref.watch(deviceLocationRepositoryProvider);
-  return DeviceLocationNotifier(repository);
+  return DeviceLocationNotifier(repository, ref);
+});
+
+final deviceLocationRepositoryProvider = Provider<DeviceLocationRepository>((ref) {
+  return DeviceLocationRepository();
 });

@@ -19,31 +19,35 @@ class CurrentLocationCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title, // 동적으로 전달된 제목 사용
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
+      child: SizedBox(
+        height: 180,
+        width: 180,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title, // 동적으로 전달된 제목 사용
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              '국가: ${geoLocation.country}\n'
-                  '지역 코드: ${geoLocation.code}\n'
-                  '시/도: ${geoLocation.r1}\n'
-                  '구/군: ${geoLocation.r2}\n'
-                  '동/면/읍: ${geoLocation.r3}',
-              style: const TextStyle(
-                fontSize: 14.0,
-                color: Colors.grey,
+              const SizedBox(height: 8.0),
+              Text(
+                '국가: ${geoLocation.country}\n'
+                    '지역 코드: ${geoLocation.code}\n'
+                    '시/도: ${geoLocation.r1}\n'
+                    '구/군: ${geoLocation.r2}\n'
+                    '동/면/읍: ${geoLocation.r3}',
+                style: const TextStyle(
+                  fontSize: 14.0,
+                  color: Colors.grey,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

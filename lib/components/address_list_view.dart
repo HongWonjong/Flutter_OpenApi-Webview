@@ -13,6 +13,12 @@ class AddressListView extends StatelessWidget {
       itemCount: addresses.length,
       itemBuilder: (context, index) {
         final address = addresses[index];
+        // roadAddress가 없으면 parcelAddress를 사용
+        final displayAddress = address.roadAddress.isNotEmpty
+            ? address.roadAddress
+            : address.parcelAddress.isNotEmpty
+            ? address.parcelAddress
+            : '주소 정보 없음';
         return Card(
           margin: const EdgeInsets.only(bottom: 16.0),
           elevation: 2.0,
@@ -33,7 +39,7 @@ class AddressListView extends StatelessWidget {
                 ),
                 const SizedBox(height: 8.0),
                 Text(
-                  address.roadAddress,
+                  displayAddress,
                   style: const TextStyle(
                     fontSize: 14.0,
                     color: Colors.grey,
