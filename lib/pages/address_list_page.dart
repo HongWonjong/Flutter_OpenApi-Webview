@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../components/current_location_cart.dart';
+import '../components/current_location_card.dart';
 import '../components/geolocator_card.dart';
 import '../components/address_list_view.dart';
 import '../models/device_location_model.dart';
@@ -84,9 +84,6 @@ class _AddressListPageState extends ConsumerState<AddressListPage> {
                     }
                     return CurrentLocationCard(
                       geoLocation: geoLocation,
-                      title: _titleController.text.isEmpty
-                          ? 'GeoLocationAPI'
-                          : '${_titleController.text} (GeoLocationAPI)',
                     );
                   },
                   loading: () => const Padding(
@@ -105,9 +102,6 @@ class _AddressListPageState extends ConsumerState<AddressListPage> {
                     }
                     return GeolocatorCard(
                       deviceLocation: deviceLocation,
-                      title: _titleController.text.isEmpty
-                          ? 'Geolocator'
-                          : _titleController.text,
                     );
                   },
                   loading: () => const Padding(

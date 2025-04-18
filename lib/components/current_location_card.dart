@@ -3,12 +3,10 @@ import '../models/geolocation_model.dart';
 
 class CurrentLocationCard extends StatelessWidget {
   final GeoLocationData geoLocation;
-  final String title;
 
   const CurrentLocationCard({
     super.key,
     required this.geoLocation,
-    this.title = '현재 위치', // 기본값: "현재 위치"
   });
 
   @override
@@ -28,7 +26,7 @@ class CurrentLocationCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title, // 동적으로 전달된 제목 사용
+                "GeoLocation API", // 동적으로 전달된 제목 사용
                 style: const TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,

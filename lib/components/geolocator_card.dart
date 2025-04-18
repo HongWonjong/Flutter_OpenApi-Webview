@@ -3,12 +3,10 @@ import '../models/device_location_model.dart';
 
 class GeolocatorCard extends StatelessWidget {
   final DeviceLocationData deviceLocation;
-  final String title;
 
   const GeolocatorCard({
     super.key,
     required this.deviceLocation,
-    this.title = 'Geolocator 위치', // 기본값
   });
 
   @override
@@ -28,7 +26,7 @@ class GeolocatorCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title,
+                "Geolocator 위치",
                 style: const TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,

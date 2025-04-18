@@ -29,7 +29,6 @@ class DeviceLocationState {
   }
 }
 
-
 class DeviceLocationNotifier extends StateNotifier<DeviceLocationState> {
   final DeviceLocationRepository repository;
   final Ref ref;
@@ -38,44 +37,32 @@ class DeviceLocationNotifier extends StateNotifier<DeviceLocationState> {
 
   Future<void> fetchLocationAndAddress() async {
     try {
-      print('Starting fetchLocationAndAddress...');
       state = state.copyWith(
         deviceLocation: const AsyncValue.loading(),
         vworldAddress: const AsyncValue.loading(),
         nearbyAddresses: const AsyncValue.loading(),
       );
 
-      print('Fetching device location...');
       final deviceLocation = await repository.getDeviceLocation();
-      print('Device location fetched: latitude=${deviceLocation.latitude}, longitude=${deviceLocation.longitude}');
-
-      print('Fetching address from VWORLD...');
       final vworldAddress = await repository.getAddressFromVworld(
         deviceLocation.latitude,
         deviceLocation.longitude,
       );
-      print('VWORLD address fetched: roadAddress=${vworldAddress.roadAddress}, administrativeArea=${vworldAddress.administrativeArea}');
 
       final query = ref.read(searchQueryProvider);
-      print('Fetching nearby addresses from VWORLD with query: $query...');
       final nearbyAddresses = await repository.searchNearbyAddresses(
         deviceLocation.latitude,
         deviceLocation.longitude,
         query: query.isEmpty ? '행정복지센터' : query,
         radius: 1000,
       );
-      print('Nearby addresses fetched: ${nearbyAddresses.length} items');
-      print('Nearby addresses: ${nearbyAddresses.map((addr) => addr.title).toList()}');
 
       state = state.copyWith(
         deviceLocation: AsyncValue.data(deviceLocation),
         vworldAddress: AsyncValue.data(vworldAddress),
         nearbyAddresses: AsyncValue.data(nearbyAddresses),
       );
-      print('State updated successfully: deviceLocation=${state.deviceLocation}, vworldAddress=${state.vworldAddress}, nearbyAddresses=${state.nearbyAddresses}');
     } catch (e, stack) {
-      print('Error in fetchLocationAndAddress: $e');
-      print('Stack trace: $stack');
       state = state.copyWith(
         deviceLocation: AsyncValue.error(e, stack),
         vworldAddress: AsyncValue.error(e, stack),
